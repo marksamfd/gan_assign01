@@ -1,18 +1,18 @@
 from pathlib import Path
 
-from loguru import logger
-from tqdm import tqdm
 import typer
 
-
-from tensorflow.keras import layers, Model
-from tensorflow.keras.losses import binary_crossentropy
-
-from gan_assign01.config import EPOCHS, IMG_SIZE, LATENT_DIM, MODELS_DIR, PROCESSED_DATA_DIR
+from gan_assign01.config import EPOCHS, MODELS_DIR, PROCESSED_DATA_DIR
 from gan_assign01.dataset import get_dataset_regions, load_region_dataset
 from gan_assign01.modeling.models.ae import build_autoencoder
 from gan_assign01.modeling.models.vae import build_vae
-from gan_assign01.plots import show_reconstruction_ae
+from gan_assign01.plots import (
+    show_generated_samples_vae,
+    show_latent_space_ae,
+    show_latent_space_vae,
+    show_reconstruction_ae,
+    show_reconstruction_vae,
+)
 
 app = typer.Typer()
 
@@ -26,10 +26,11 @@ def main(
     model_path: Path = MODELS_DIR / "model.pkl",
     # -----------------------------------------
 ):
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
     regions = get_dataset_regions()
     results = {region: {"ae":False, "vae":False} for region in regions}
 
-    for region in regions():
+    for region in regions:
 
         print("="*60)
         print("Training Region:", region)
@@ -51,8 +52,9 @@ def main(
             )
 
             show_reconstruction_ae(ae, ds, region)
+            show_latent_space_ae(ae, ds, region)
         # Save models
-            ae.save(f"{region}_AE.h5")
+            ae.save(MODELS_DIR / f"{region}_AE.h5")
             results[region]["ae"] = True
         # ---------------------------
         # VAE
@@ -67,6 +69,10 @@ def main(
                 verbose=1
             )
 
+            show_reconstruction_vae(encoder, decoder, ds, region)
+            show_latent_space_vae(encoder, ds, region)
+            show_generated_samples_vae(decoder, region)
+            vae.save_weights(MODELS_DIR / f"{region}_VAE.weights.h5")
             
             results[region]["vae"] = True
 

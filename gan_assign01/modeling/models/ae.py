@@ -16,7 +16,7 @@ def build_autoencoder():
     x = layers.MaxPooling2D()(x)
 
     x = layers.Flatten()(x)
-    latent = layers.Dense(LATENT_DIM)(x)
+    latent = layers.Dense(LATENT_DIM, name='latent_vector')(x)
 
     x = layers.Dense(16*16*64, activation='relu')(latent)
     x = layers.Reshape((16,16,64))(x)

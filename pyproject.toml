@@ -18,10 +18,13 @@ classifiers = [
 dependencies = [
     "kagglehub>=1.0.0",
     "loguru",
+  "matplotlib",
     "mkdocs",
+  "numpy",
     "pip",
     "python-dotenv",
     "ruff",
+  "tensorflow",
     "tqdm",
     "typer",
 ]
